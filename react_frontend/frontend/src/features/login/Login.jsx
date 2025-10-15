@@ -10,14 +10,15 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-  const { login, isAuthenticated, isAdmin } = useAuth();
+  const { login } = useAuth();
 
   // Redirect if already authenticated
+  const { user } = useAuth();
   useEffect(() => {
-    if (isAuthenticated()) {
-      navigate(isAdmin() ? "/admin" : "/home");
+    if (user) {
+      navigate(user.role === "admin" ? "/admin" : "/home");
     }
-  }, [isAuthenticated, isAdmin, navigate]);
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

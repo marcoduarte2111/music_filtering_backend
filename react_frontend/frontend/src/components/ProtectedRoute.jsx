@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import "./ProtectedRoute.css";
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { loading, isAuthenticated, isAdmin } = useAuth();
@@ -7,12 +8,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   // Show loading state while checking authentication
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
+      <div className="loading-container">
         <div>Loading...</div>
       </div>
     );
