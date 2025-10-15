@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { loginWithSpotify } from "../../services/authService";
-import "./Sign_up.css";
+import "./Sign_Up.css";
 
 const SignUp = ({ onRegisterSuccess }) => {
   const [name, setName] = useState("");
