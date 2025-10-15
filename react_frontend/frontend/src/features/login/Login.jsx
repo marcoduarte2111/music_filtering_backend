@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // 👈 Importar useNavigate
-import { loginUser, loginWithSpotify } from "../../services/authService";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { loginWithSpotify } from "../../services/authService";
 import "./Login.css";
 
 const Login = () => {
@@ -8,16 +9,30 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const navigate = useNavigate(); // 👈 Hook para redirección
+  const navigate = useNavigate();
+  const { login, user } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate(user.role === "admin" ? "/admin" : "/home");
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    
     try {
-      const data = await loginUser(email, password);
-      console.log("Usuario autenticado:", data);
+      const userData = await login(email, password);
+      console.log("Usuario autenticado:", userData);
 
-      // ✅ Redirigir a /home después del login exitoso
-      navigate("/home");
+      // Redirect based on user role
+      if (userData.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/home");
+      }
     } catch (err) {
       setError(err.detail || "Error al iniciar sesión");
     }

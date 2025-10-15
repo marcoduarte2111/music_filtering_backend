@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./AdminPanel.css";
 
-const AdminPanel = ({ user, onLogout }) => {
+const AdminPanel = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalSongs: 0,
@@ -18,6 +22,11 @@ const AdminPanel = ({ user, onLogout }) => {
     });
   }, []);
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div className="admin-panel">
       <header className="admin-header">
@@ -27,7 +36,7 @@ const AdminPanel = ({ user, onLogout }) => {
         <div className="admin-user-info">
           <span>👤 {user?.full_name || user?.email}</span>
           <span className="admin-badge">ADMIN</span>
-          <button onClick={onLogout} className="logout-btn">
+          <button onClick={handleLogout} className="logout-btn">
             Cerrar Sesión
           </button>
         </div>

@@ -13,6 +13,40 @@ const api = axios.create({
 });
 
 // ===================================
+// 🔒 AXIOS INTERCEPTOR - AUTO TOKEN
+// ===================================
+
+// Add token to all requests automatically
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Handle 401 errors (token expired or invalid)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token is invalid or expired
+      localStorage.removeItem("token");
+      // Redirect to login if not already there
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+// ===================================
 // 🔐 AUTENTICACIÓN NORMAL
 // ===================================
 
@@ -62,9 +96,8 @@ export const getCurrentUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("No hay token disponible");
 
-    const response = await api.get("/v1/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // No need to manually add Authorization header - interceptor handles it
+    const response = await api.get("/v1/auth/me");
 
     return response.data;
   } catch (error) {
