@@ -10,10 +10,9 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
 
   // Redirect if already authenticated
-  const { user } = useAuth();
   useEffect(() => {
     if (user) {
       navigate(user.role === "admin" ? "/admin" : "/home");
