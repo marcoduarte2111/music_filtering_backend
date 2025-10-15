@@ -1,15 +1,33 @@
-.login {
-  background-color: #181818;
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 350px;
-  margin: 100px auto;
-  text-align: center;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+body {
+  background: linear-gradient(135deg, #111 0%, #1db954 40%, #ff0000 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-.login h2 {
+.login-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-card {
+  background: rgba(0, 0, 0, 0.85);
+  padding: 40px 50px;
+  border-radius: 20px;
+  width: 380px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.login-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #1db954;
   margin-bottom: 20px;
 }
 
@@ -19,39 +37,107 @@
   gap: 15px;
 }
 
-.login-form input {
-  padding: 10px;
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.input-group label {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  color: #aaa;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
   border: none;
-  border-radius: 5px;
-  background-color: #282828;
-  color: white;
-  font-size: 14px;
+  border-radius: 10px;
+  background: #222;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
-.login-form input:focus {
-  outline: 2px solid #1db954; /* verde Spotify */
+.input-group input:focus {
+  outline: none;
+  background: #333;
+  border: 1px solid #1db954;
 }
 
-.login-form button {
-  background-color: #1db954;
-  color: white;
+.login-btn {
+  background: linear-gradient(90deg, #1db954, #14833b);
   border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.login-form button:hover {
-  background-color: #17a84b;
-}
-
-.link {
-  color: #1db954;
-  cursor: pointer;
+  border-radius: 25px;
+  padding: 12px;
+  font-size: 1rem;
   font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.link:hover {
+.login-btn:hover {
+  background: linear-gradient(90deg, #14833b, #1db954);
+  transform: translateY(-2px);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  color: #ccc;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #333;
+  margin: 0 10px;
+}
+
+.spotify-btn {
+  background: #1db954;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.spotify-btn:hover {
+  background: #1ed760;
+  transform: translateY(-2px);
+}
+
+.register-text {
+  margin-top: 25px;
+  color: #aaa;
+}
+
+.register-text a {
+  color: #1db954;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.register-text a:hover {
   text-decoration: underline;
+}
+
+.error-message {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff6b6b;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
 }

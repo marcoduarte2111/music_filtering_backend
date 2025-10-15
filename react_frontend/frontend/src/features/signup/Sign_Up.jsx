@@ -1,187 +1,143 @@
 import { useState } from "react";
-import { registerUser } from "../../services/authService";
-import "./Sign_Up.css";
+import { loginWithSpotify } from "../../services/authService";
+import "./Sign_up.css";
 
-const SignUp = ({ onSignUpSuccess, goToLogin }) => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-    full_name: "",
-    preferred_language: "es"
-  });
-  const [message, setMessage] = useState("");
+const SignUp = ({ onRegisterSuccess }) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [preferredLanguage, setPreferredLanguage] = useState("en");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSignUp = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
-    
-    // Validaciones
-    if (formData.password !== formData.confirmPassword) {
+
+    if (password !== confirmPassword) {
       setError("Las contraseñas no coinciden");
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
-      return;
-    }
-
-    if (!formData.full_name.trim()) {
-      setError("El nombre completo es requerido");
-      return;
-    }
-
-    // Validar email básico
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError("Por favor ingresa un email válido");
-      return;
-    }
-
-    setLoading(true);
+    setError("");
 
     try {
-      // Datos que se envían al backend
-      const userData = {
-        email: formData.email,
-        password: formData.password,
-        full_name: formData.full_name,
-        preferred_language: formData.preferred_language
-      };
-
-      console.log("📤 Enviando datos de registro:", userData);
-      
-      const response = await registerUser(userData);
-      
-      console.log("✅ Registro exitoso:", response);
-      
-      setMessage("✅ Usuario registrado correctamente. Redirigiendo al login...");
-      
-      // Limpiar formulario
-      setFormData({
-        email: "",
-        password: "",
-        confirmPassword: "",
-        full_name: "",
-        preferred_language: "es"
+      const response = await fetch("http://127.0.0.1:8000/api/v1/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          full_name: name,
+          preferred_language: preferredLanguage,
+          password: password,
+        }),
       });
 
-      // Redirigir al login después de 2 segundos
-      setTimeout(() => {
-        goToLogin();
-      }, 2000);
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("❌ Error backend:", data);
+        throw new Error(data.detail || "Error al registrar usuario");
+      }
+
+      console.log("✅ Usuario registrado correctamente:", data);
+
+      if (onRegisterSuccess) onRegisterSuccess(data);
 
     } catch (err) {
-      console.error("❌ Error al registrar:", err);
-      
-      // Manejo mejorado de errores
-      if (err.detail) {
-        if (err.detail === "Email already registered") {
-          setError("Este email ya está registrado. Intenta con otro o inicia sesión.");
-        } else {
-          setError(err.detail);
-        }
-      } else if (err.message) {
-        setError(err.message);
-      } else if (typeof err === 'string') {
-        setError(err);
-      } else {
-        setError("Error al registrarte. Por favor verifica tu conexión e intenta nuevamente.");
-      }
-    } finally {
-      setLoading(false);
+      console.error("⚠️ Error:", err);
+      setError(err.message || "Error al registrar el usuario");
     }
   };
 
-  return (
-    <div className="signup">
-      <h2>🎵 Crear cuenta</h2>
-      <p>Únete y descubre música nueva</p>
-      
-      <form onSubmit={handleSignUp} className="signup-form">
-        <input
-          type="text"
-          name="full_name"
-          placeholder="Nombre completo"
-          value={formData.full_name}
-          onChange={handleChange}
-          required
-          disabled={loading}
-        />
-        
-        <input
-          type="email"
-          name="email"
-          placeholder="Correo electrónico"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          disabled={loading}
-        />
-        
-        <input
-          type="password"
-          name="password"
-          placeholder="Contraseña (mínimo 6 caracteres)"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          disabled={loading}
-          minLength={6}
-        />
-        
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirmar contraseña"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          required
-          disabled={loading}
-        />
+  const handleSpotifyLogin = () => {
+    loginWithSpotify();
+  };
 
-        <div className="language-selector">
-          <label htmlFor="language">Idioma preferido:</label>
-          <select
-            id="language"
-            name="preferred_language"
-            value={formData.preferred_language}
-            onChange={handleChange}
-            disabled={loading}
-          >
-            <option value="es"> Español</option>
-            <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="pt">Português</option>
-            <option value="de">Deutsch</option>
-          </select>
+  return (
+    <div className="signup-container">
+      <div className="signup-card">
+        <h1 className="signup-title">Crear cuenta en Music Auth Portal</h1>
+
+        {error && <p className="error-message">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="signup-form">
+          <div className="input-group">
+            <label>Nombre completo</label>
+            <input
+              type="text"
+              placeholder="Tu nombre completo"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Correo electrónico</label>
+            <input
+              type="email"
+              placeholder="Tu correo electrónico"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Idioma preferido</label>
+            <select
+              value={preferredLanguage}
+              onChange={(e) => setPreferredLanguage(e.target.value)}
+              required
+            >
+              <option value="en">Inglés</option>
+              <option value="es">Español</option>
+              <option value="fr">Francés</option>
+              <option value="de">Alemán</option>
+            </select>
+          </div>
+
+          <div className="input-group">
+            <label>Contraseña</label>
+            <input
+              type="password"
+              placeholder="Crea una contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Confirmar contraseña</label>
+            <input
+              type="password"
+              placeholder="Repite la contraseña"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" className="signup-btn">
+            Registrarse
+          </button>
+        </form>
+
+        <div className="divider">
+          <span>o</span>
         </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Registrando..." : "Crear cuenta"}
+        <button onClick={handleSpotifyLogin} className="spotify-btn">
+          🎵 Registrarse con Spotify
         </button>
-      </form>
 
-      {message && <p className="success">{message}</p>}
-      {error && <p className="error">{error}</p>}
-
-      <p>
-        ¿Ya tienes cuenta?{" "}
-        <span className="link" onClick={goToLogin}>
-          Inicia sesión
-        </span>
-      </p>
+        <p className="login-text">
+          ¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a>
+        </p>
+      </div>
     </div>
   );
 };

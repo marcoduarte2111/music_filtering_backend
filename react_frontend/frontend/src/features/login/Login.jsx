@@ -1,76 +1,85 @@
 import { useState } from "react";
-import { loginUser } from "../../services/authService";
+import { useNavigate } from "react-router-dom"; // 👈 Importar useNavigate
+import { loginUser, loginWithSpotify } from "../../services/authService";
 import "./Login.css";
 
-const Login = ({ onLoginSuccess, goToSignUp }) => {  // Verificar este nombre
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+  const navigate = useNavigate(); // 👈 Hook para redirección
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-    
     try {
-      const response = await loginUser(email, password);
-      console.log("Login exitoso:", response);
-      localStorage.setItem("access_token", response.access_token);
-      onLoginSuccess();
+      const data = await loginUser(email, password);
+      console.log("Usuario autenticado:", data);
+
+      // ✅ Redirigir a /home después del login exitoso
+      navigate("/home");
     } catch (err) {
-      console.error("Error de login:", err);
-      
-      if (err.detail) {
-        setError(err.detail);
-      } else if (typeof err === 'string') {
-        setError(err);
-      } else {
-        setError("Error de conexión. Verifica que el backend esté corriendo en el puerto 8000.");
-      }
-    } finally {
-      setLoading(false);
+      setError(err.detail || "Error al iniciar sesión");
     }
   };
 
+  const handleSpotifyLogin = () => {
+    loginWithSpotify();
+  };
+
+  const goToSignUp = () => {
+    navigate("/signup"); // 👈 Redirección a SignUp con React Router
+  };
+
   return (
-    <div className="login">
-      <h2>🎵 Music App</h2>
-      <p>Inicia sesión para descubrir música</p>
-      
-      <form onSubmit={handleLogin} className="login-form">
-        <input
-          type="text"
-          placeholder="Correo electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          disabled={loading}
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={loading}
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Cargando..." : "Iniciar Sesión"}
+    <div className="login-container">
+      <div className="login-card">
+        <h1 className="login-title">Iniciar sesión en Music Auth Portal</h1>
+
+        {error && <p className="error-message">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="input-group">
+            <label>Correo electrónico</label>
+            <input
+              type="email"
+              placeholder="Tu correo electrónico"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Contraseña</label>
+            <input
+              type="password"
+              placeholder="Tu contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" className="login-btn">
+            Iniciar sesión
+          </button>
+        </form>
+
+        <div className="divider">
+          <span>o</span>
+        </div>
+
+        <button onClick={handleSpotifyLogin} className="spotify-btn">
+          🎵 Iniciar sesión con Spotify
         </button>
-      </form>
 
-      {error && <p className="error">❌ {error}</p>}
-
-      <p>
-        ¿No tienes cuenta?{" "}
-        <span className="link" onClick={goToSignUp}>  {/* Verificar esto */}
-          Regístrate aquí
-        </span>
-      </p>
-
-      <div className="admin-hint">
-         Usuario de prueba: admin@gmail.com / adminpassword
+        <p className="register-text">
+          ¿No tienes cuenta?{" "}
+          <button className="link-button" onClick={goToSignUp}>
+            Regístrate aquí
+          </button>
+        </p>
       </div>
     </div>
   );

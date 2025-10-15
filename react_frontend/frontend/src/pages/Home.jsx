@@ -1,13 +1,19 @@
+// src/pages/Home.jsx
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // 👈 Importa el hook
 import "./Home.css";
 
 const Home = ({ user, onLogout }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate(); // 👈 Instancia para redirigir
 
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log("Buscando:", searchQuery);
-    // Aquí implementarás la búsqueda de música
+
+    if (!searchQuery.trim()) return;
+
+    // Redirige a /search y pasa la query como parámetro
+    navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
   };
 
   return (
@@ -40,28 +46,6 @@ const Home = ({ user, onLogout }) => {
             />
             <button type="submit">🔍 Buscar</button>
           </form>
-        </div>
-
-        <div className="music-categories">
-          <h3>Categorías</h3>
-          <div className="categories-grid">
-            <div className="category-card">
-              <span className="category-icon">🎸</span>
-              <h4>Rock</h4>
-            </div>
-            <div className="category-card">
-              <span className="category-icon">🎤</span>
-              <h4>Pop</h4>
-            </div>
-            <div className="category-card">
-              <span className="category-icon">🎹</span>
-              <h4>Clásica</h4>
-            </div>
-            <div className="category-card">
-              <span className="category-icon">🎧</span>
-              <h4>Electrónica</h4>
-            </div>
-          </div>
         </div>
       </div>
     </div>
