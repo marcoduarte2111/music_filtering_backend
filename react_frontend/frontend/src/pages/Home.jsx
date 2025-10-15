@@ -1,11 +1,13 @@
 // src/pages/Home.jsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // 👈 Importa el hook
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./Home.css";
 
-const Home = ({ user, onLogout }) => {
+const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate(); // 👈 Instancia para redirigir
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -16,6 +18,11 @@ const Home = ({ user, onLogout }) => {
     navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div className="home">
       <header className="home-header">
@@ -24,7 +31,7 @@ const Home = ({ user, onLogout }) => {
         </div>
         <div className="user-info">
           <span>👤 {user?.full_name || user?.email}</span>
-          <button onClick={onLogout} className="logout-btn">
+          <button onClick={handleLogout} className="logout-btn">
             Cerrar Sesión
           </button>
         </div>

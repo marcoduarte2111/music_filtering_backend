@@ -1,8 +1,12 @@
 import { useState } from "react";
-import { loginWithSpotify } from "../../services/authService";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { loginWithSpotify, registerUser } from "../../services/authService";
 import "./Sign_Up.css";
 
-const SignUp = ({ onRegisterSuccess }) => {
+const SignUp = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,33 +25,23 @@ const SignUp = ({ onRegisterSuccess }) => {
     setError("");
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/v1/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          full_name: name,
-          preferred_language: preferredLanguage,
-          password: password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error("❌ Error backend:", data);
-        throw new Error(data.detail || "Error al registrar usuario");
-      }
-
+      // Register the user
+      const data = await registerUser(name, email, password, preferredLanguage);
       console.log("✅ Usuario registrado correctamente:", data);
 
-      if (onRegisterSuccess) onRegisterSuccess(data);
+      // Auto-login after successful registration
+      const userData = await login(email, password);
+      console.log("✅ Login automático exitoso:", userData);
 
+      // Redirect based on user role
+      if (userData.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/home");
+      }
     } catch (err) {
       console.error("⚠️ Error:", err);
-      setError(err.message || "Error al registrar el usuario");
+      setError(err.detail || err.message || "Error al registrar el usuario");
     }
   };
 
@@ -135,7 +129,10 @@ const SignUp = ({ onRegisterSuccess }) => {
         </button>
 
         <p className="login-text">
-          ¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a>
+          ¿Ya tienes cuenta?{" "}
+          <button className="link-button" onClick={() => navigate("/login")}>
+            Inicia sesión aquí
+          </button>
         </p>
       </div>
     </div>
